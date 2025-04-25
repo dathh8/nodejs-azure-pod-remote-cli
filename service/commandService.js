@@ -9,6 +9,7 @@ const mappingCommandOfEnv = {
     "preprod": `kubectl config use-context ${process.env.PREPROD_CONTEXT}`
 }
 const scriptContent = "<?php use Magento\\Framework\\App\\Bootstrap; use Magento\\Framework\\App\\State; require __DIR__ . '/app/bootstrap.php' ; $bootstrap=Bootstrap::create(BP,$_SERVER); $objectManager=$bootstrap->getObjectManager(); $object = new Run($objectManager); $object->publish(); class Run { protected $objectManager; public function __construct($objectManager) { $this->objectManager=$objectManager; } public function publish() { $publisher=$this->objectManager->create(\\Magento\\Framework\\MessageQueue\\PublisherInterface::class); $event=[EVENT_IDS_REPLACE_ME]; foreach($event as $eventId) { $eventId=(string)$eventId; $publisher->publish('sosc.queue.ordering.event.generated.order', [$eventId] );} return $this; } }";
+const submitContent = "<?php use Magento\\Framework\\App\\Bootstrap; use Magento\\Framework\\App\\State; require __DIR__ . '/app/bootstrap.php' ; $bootstrap=Bootstrap::create(BP,$_SERVER); $objectManager=$bootstrap->getObjectManager(); $object = new Run($objectManager); $object->publish(); class Run { protected $objectManager; public function __construct($objectManager) { $this->objectManager=$objectManager; } public function publish() { $publisher=$this->objectManager->create(\\Magento\\Framework\\MessageQueue\\PublisherInterface::class); $data=[LIST_ID]; foreach($data as $id) {  $publisher->publish('sosc.queue.push.pre.defined.order.request', json_encode(['sosc_order_request_id' => (string) $id]) );} return $this; } }";
 
 const getCommand = commandArray => {
     const commandTag = commandArray[0];
@@ -36,6 +37,16 @@ const getCommand = commandArray => {
                 'sh',
                 '-c',
                 `touch run.php && printf '%s' '${escaped}' > run.php && php run.php`
+            ];
+            break;
+        case 'submit-order-by-ids':
+            let text2 = submitContent.replace('LIST_ID', commandArray[1]);
+            let text3 = JSON.stringify(text2);
+            let escaped1 = text2.replace(/'/g, "'\\''");
+            command = [
+                'sh',
+                '-c',
+                `touch submitOrder.php && printf '%s' '${escaped1}' > submitOrder.php && php submitOrder.php`
             ];
             break;
         case 'search-logs':

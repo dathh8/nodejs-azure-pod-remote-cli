@@ -5,6 +5,7 @@ const listAvailableCommands = {
     "show-env": 1,
     "open-database": 1,
     "generate-promo": 1,
+    "submit-order-by-ids": 2,
     "search-logs": 3 ,
     "view-exception": 2,
     "view-system": 2,
@@ -67,6 +68,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 "<code>--- open-database : open database connection </code><br>" +
                 "<code>--- generate-promo : generate promo event </code><br>" +
                 "<code>--- generate-promo-by-event : generate promo by event Eg: generate-promo-by-event 10,12,13</code><br>" +
+                "<code>--- submit-order-by-ids : submit order by ids Eg: submit-order-by-ids 10,12,13</code><br>" +
                 "<code>--- search-logs {keyword} {file-path} : search from logs </code><br>" +
                 "<code>--- view-exception {total-line} : view exception log </code><br>" +
                 "<code>--- view-system {total-line} : view system log </code><br>" +
