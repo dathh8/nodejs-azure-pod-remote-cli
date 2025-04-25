@@ -30,10 +30,10 @@ app.post('/execute', async (req, res) => {
         const commandTag = command[0];
 
         if (commandTag === 'open-database') {
-            listEnvVariables.map(async (env) => {
+            for (const env of listEnvVariables) {
                 let { podName, containerName } = env;
                 await podService.execCommand(namespace, podName, containerName, convertedCommand, res);
-            });
+            }
             res.send('Database setup has been triggered, it might need about 10-15s to finish. You can access db by browser after this time!');
             return;
         }

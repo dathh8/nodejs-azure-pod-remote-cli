@@ -1,12 +1,12 @@
 const k8s = require('@kubernetes/client-node');
 const {PassThrough} = require('stream');
 
-const kc = new k8s.KubeConfig();
-kc.loadFromDefault();
-const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 
 const getEnvironmentVariables = async (namespace) => {
     try {
+        const kc = new k8s.KubeConfig();
+        kc.loadFromDefault();
+        const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
         const listPods = (await k8sApi.listNamespacedPod(namespace)).body.items;
         let result = [];
         listPods.map(pod => {
@@ -30,6 +30,8 @@ const getEnvironmentVariables = async (namespace) => {
 
 const execCommand = async (namespace, podName, containerName, command, res) => {
     try {
+        const kc = new k8s.KubeConfig();
+        kc.loadFromDefault();
         const exec = new k8s.Exec(kc);
         const outputStream = new PassThrough();
         await exec.exec(namespace, podName, containerName, command, outputStream, outputStream, outputStream, true, (err, _stream) => {
@@ -47,7 +49,7 @@ const execCommand = async (namespace, podName, containerName, command, res) => {
 const getMode = (context) => {
     switch (context) {
         case process.env.UAT_CONTEXT:
-            return "dev";
+            return "uat";
         case process.env.PREPROD_CONTEXT:
             return "preprod";
         default:

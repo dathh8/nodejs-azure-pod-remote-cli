@@ -1,3 +1,4 @@
+const fs = require('fs');
 const mappingTypeWithPath = {
     "view-exception": "var/log/exception.log",
     "view-system": "var/log/system.log",
@@ -7,6 +8,7 @@ const mappingCommandOfEnv = {
     "uat":`kubectl config use-context ${process.env.UAT_CONTEXT}`,
     "preprod": `kubectl config use-context ${process.env.PREPROD_CONTEXT}`
 }
+const scriptContent = "<?php use Magento\\Framework\\App\\Bootstrap; use Magento\\Framework\\App\\State; require __DIR__ . '/app/bootstrap.php' ; $bootstrap=Bootstrap::create(BP,$_SERVER); $objectManager=$bootstrap->getObjectManager(); $object = new Run($objectManager); $object->publish(); class Run { protected $objectManager; public function __construct($objectManager) { $this->objectManager=$objectManager; } public function publish() { $publisher=$this->objectManager->create(\\Magento\\Framework\\MessageQueue\\PublisherInterface::class); $event=[EVENT_IDS_REPLACE_ME]; foreach($event as $eventId) { $eventId=(string)$eventId; $publisher->publish('sosc.queue.ordering.event.generated.order', [$eventId] );} return $this; } }";
 
 const getCommand = commandArray => {
     const commandTag = commandArray[0];
@@ -24,6 +26,16 @@ const getCommand = commandArray => {
                 'sh',
                 '-c',
                 'curl -O https://files.magerun.net/n98-magerun2.phar && chmod +x ./n98-magerun2.phar && php n98-magerun2.phar sys:cron:run sosc_ordering_event_generate_order'
+            ];
+            break;
+        case 'generate-promo-by-event':
+            let text = scriptContent.replace('EVENT_IDS_REPLACE_ME', commandArray[1]);
+            let text1 = JSON.stringify(text);
+            let escaped = text.replace(/'/g, "'\\''");
+            command = [
+                'sh',
+                '-c',
+                `touch run.php && printf '%s' '${escaped}' > run.php && php run.php`
             ];
             break;
         case 'search-logs':
